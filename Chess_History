@@ -1,0 +1,119 @@
+# Uses Selenium to scrape chess files by chess player
+import time
+import pandas as pd
+import csv
+
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+
+driver_path = r'C:\Users\murra\OneDrive - Umich\XPS\Documents_XPS\chromedriver.exe'
+driver = webdriver.Chrome(executable_path=driver_path)
+
+url = 'http://www.pgnmentor.com/files.html'
+
+page = driver.get(url)
+
+time.sleep(5)
+
+# '/html/body/div[1]/table[4]/tbody/tr/td[1]/table/tbody/tr[1]/td[1]/a'
+# '/html/body/div[1]/table[4]/tbody/tr/td[1]/table/tbody/tr[2]/td[1]/a'
+# '/html/body/div[1]/table[4]/tbody/tr/td[2]/table/tbody/tr[1]/td[1]/a'
+# '/html/body/div[1]/table[4]/tbody/tr/td[2]/table/tbody/tr[2]/td[1]/a'
+# '/html/body/div[1]/table[4]/tbody/tr/td[1]/table/tbody/tr[122]/td[1]/a'
+# '/html/body/div[1]/table[4]/tbody/tr/td[2]/table/tbody/tr[123]/td[1]/a'
+
+for i in range(1,123):
+    # Selenium clicking with changing xpath
+    driver.find_element_by_xpath('/html/body/div[1]/table[4]/tbody/tr/td[1]/table/tbody/tr[{}]/td[1]/a'.format(i)).click()
+    
+for i in range(1,124):
+    # Selenium clicking with changing xpath
+    driver.find_element_by_xpath('/html/body/div[1]/table[4]/tbody/tr/td[2]/table/tbody/tr[{}]/td[1]/a'.format(i)).click()
+    
+    
+# unzips downloaded chess files by player
+import os, zipfile
+
+dir_name = r'C:\Users\murra\OneDrive - Umich\WebscrapingOutput_F\Game'
+extension = ".zip"
+
+os.chdir(dir_name) # change directory from working dir to dir with files
+
+for item in os.listdir(dir_name): # loop through items in dir
+    if item.endswith(extension): # check for ".zip" extension
+        file_name = os.path.abspath(item) # get full path of files
+        zip_ref = zipfile.ZipFile(file_name) # create zipfile object
+        zip_ref.extractall(dir_name) # extract file to dir
+        zip_ref.close() # close file
+        os.remove(file_name) # delete zipped file
+
+# prints names of chess players
+for item in os.listdir(dir_name): # loop through items in dir
+    if item.endswith('.pgn'): # check for ".zip" extension
+        print(item)
+        
+        
+        
+import chess.pgn
+import time
+import os
+import warnings
+
+# loads number of games played and game history for a player
+
+# Input
+Player_Last_Name = 'Steinitz'
+
+
+f = open("{}.pgn".format(Player_Last_Name))
+
+my_list = []
+
+Games_Played = 0
+
+while True:
+    game = chess.pgn.read_game(f)
+    Games_Played += 1
+    
+    if game is None:
+        break  # end of file
+    
+    my_list.append(game)
+   
+print(Games_Played-1,'Games_Played')
+
+display(my_list)
+
+
+
+
+
+import chess.pgn
+import time
+import os
+import warnings
+
+# loads number of games played and game history for a player
+
+# Inputs
+Player_Last_Name = 'Steinitz'
+Game_Number = 585
+
+
+f = open("{}.pgn".format(Player_Last_Name))
+
+Games_Played = 0
+
+for number in range(0,Game_Number):
+    game = chess.pgn.read_game(f)
+    
+    Games_Played += 1
+    if Games_Played == Game_Number:
+        print(game)
+        board = game.board()
+        # shows each move for a specified game
+        for move in game.mainline_moves():
+            board.push(move)
+            display(board)
